@@ -615,11 +615,22 @@ const AddExperience: React.FC<AddExperienceProps> = ({
     if (currentStep === 0) {
       const inst = identificacionInstitucional || {};
       const errors: Record<string, string> = {};
+      
+      // Campos principales obligatorios
       if (!inst.codeDane || String(inst.codeDane).trim() === "") errors.codeDane = "Código DANE es obligatorio";
       if (!inst.name || String(inst.name).trim() === "") errors.name = "Nombre del establecimiento es obligatorio";
       if (!inst.nameRector || String(inst.nameRector).trim() === "") errors.nameRector = "Nombre del rector es obligatorio";
-      if (!inst.departament || String(inst.departament).trim() === "") errors.departament = "Departamento es obligatorio";
       if (!inst.municipality || String(inst.municipality).trim() === "") errors.municipality = "Municipio es obligatorio";
+      if (!inst.departament || String(inst.departament).trim() === "") errors.departament = "Departamento es obligatorio";
+      
+      // Campos adicionales obligatorios
+      if (!inst.eZone || String(inst.eZone).trim() === "") errors.eZone = "Zona del EE es obligatoria";
+      if (!inst.address || String(inst.address).trim() === "") errors.address = "Dirección es obligatoria";
+      if (!inst.phone || String(inst.phone).trim() === "" || inst.phone === 0) errors.phone = "Teléfono de contacto es obligatorio";
+      if (!inst.emailInstitucional || String(inst.emailInstitucional).trim() === "") errors.emailInstitucional = "Correo electrónico institucional es obligatorio";
+      if (!inst.caracteristic || String(inst.caracteristic).trim() === "") errors.caracteristic = "Características del EE es obligatorio";
+      if (!inst.territorialEntity || String(inst.territorialEntity).trim() === "") errors.territorialEntity = "Entidad Territorial Certificada es obligatoria";
+      if (!inst.testsKnow || (inst.testsKnow !== "Sí" && inst.testsKnow !== "No")) errors.testsKnow = "Debe seleccionar si participará en el evento";
 
       if (Object.keys(errors).length > 0) {
         setFieldErrors(errors);
@@ -634,7 +645,10 @@ const AddExperience: React.FC<AddExperienceProps> = ({
       const leader = (lideres && lideres[0]) || {};
       const errors: Record<string, string> = {};
       if (!leader.nameLeaders || String(leader.nameLeaders).trim() === "") errors.leaderName = "Nombre del líder es obligatorio";
+      if (!leader.identityDocument || String(leader.identityDocument).trim() === "" || leader.identityDocument.length < 8) errors.leaderDocument = "Documento de identidad es obligatorio (mínimo 8 dígitos)";
       if (!leader.email || String(leader.email).trim() === "") errors.leaderEmail = "Correo del líder es obligatorio";
+      if (!leader.position || String(leader.position).trim() === "") errors.leaderPosition = "Cargo del líder es obligatorio";
+      if (!leader.phone || leader.phone === 0 || String(leader.phone).trim() === "") errors.leaderPhone = "Teléfono del líder es obligatorio";
       if (Object.keys(errors).length > 0) {
         setFieldErrors(errors);
         return false;
@@ -662,37 +676,376 @@ const AddExperience: React.FC<AddExperienceProps> = ({
       return true;
     }
 
+    // Step 3: Temática y Desarrollo
+    if (currentStep === 3) {
+      const tem = tematicaForm || {};
+      const errors: Record<string, string> = {};
+      
+      if (!tem.thematicLocation || String(tem.thematicLocation).trim() === "") {
+        errors.thematicLocation = "Debe seleccionar una línea temática.";
+      }
+      if (!Array.isArray(tem.Population) || tem.Population.length === 0) {
+        errors.Population = "Debe seleccionar al menos un modelo educativo.";
+      }
+      if (!Array.isArray(tem.CrossCuttingProject) || tem.CrossCuttingProject.length === 0) {
+        errors.CrossCuttingProject = "Debe seleccionar al menos una técnica SENA.";
+      }
+      if (!Array.isArray(tem.grades) || tem.grades.length === 0) {
+        errors.grades = "Debe seleccionar al menos un grado.";
+      }
+      if (!Array.isArray(tem.populationGradeIds) || tem.populationGradeIds.length === 0) {
+        errors.populationGradeIds = "Debe seleccionar al menos un grupo poblacional.";
+      }
+      if (!Array.isArray(tem.PedagogicalStrategies) || tem.PedagogicalStrategies.length === 0) {
+        errors.PedagogicalStrategies = "Debe indicar de quién ha recibido apoyo.";
+      }
+      if (!tem.Coverage || String(tem.Coverage).trim() === "") {
+        errors.Coverage = "Debe indicar si está vinculada al PEI.";
+      }
+      if (!tem.recognition || String(tem.recognition).trim() === "") {
+        errors.recognition = "Debe indicar si ha tenido reconocimiento.";
+      }
+      if (!Array.isArray(tem.socialization) || tem.socialization.length === 0) {
+        errors.socialization = "Debe indicar con qué cuenta la experiencia.";
+      }
+      
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        return false;
+      }
+      setFieldErrors({});
+      return true;
+    }
+
     return true;
   };
 
   const isCurrentStepValidSync = (): boolean => {
-    if (disableValidation) return true;
+    if (disableValidation) {
+      console.log("⚠️ Validación deshabilitada");
+      return true;
+    }
+    
+    // Paso 0: Identificación Institucional
     if (currentStep === 0) {
       const inst = identificacionInstitucional || {};
-      if (!inst.codeDane || String(inst.codeDane).trim() === "") return false;
-      if (!inst.name || String(inst.name).trim() === "") return false;
-      if (!inst.nameRector || String(inst.nameRector).trim() === "") return false;
-      if (!inst.departament || String(inst.departament).trim() === "") return false;
-      if (!inst.municipality || String(inst.municipality).trim() === "") return false;
+      console.log("📋 Validando paso 0 - Identificación Institucional:", inst);
+      
+      // Campos obligatorios principales
+      if (!inst.codeDane || String(inst.codeDane).trim() === "") {
+        console.log("❌ Falta: Código DANE");
+        return false;
+      }
+      if (!inst.name || String(inst.name).trim() === "") {
+        console.log("❌ Falta: Nombre del establecimiento");
+        return false;
+      }
+      if (!inst.nameRector || String(inst.nameRector).trim() === "") {
+        console.log("❌ Falta: Nombre del rector");
+        return false;
+      }
+      if (!inst.municipality || String(inst.municipality).trim() === "") {
+        console.log("❌ Falta: Municipio");
+        return false;
+      }
+      if (!inst.departament || String(inst.departament).trim() === "") {
+        console.log("❌ Falta: Departamento");
+        return false;
+      }
+      
+      // Campos adicionales obligatorios
+      if (!inst.eZone || String(inst.eZone).trim() === "") {
+        console.log("❌ Falta: Zona del EE");
+        return false;
+      }
+      if (!inst.address || String(inst.address).trim() === "") {
+        console.log("❌ Falta: Dirección");
+        return false;
+      }
+      if (!inst.phone || String(inst.phone).trim() === "" || inst.phone === 0) {
+        console.log("❌ Falta: Teléfono de contacto");
+        return false;
+      }
+      if (!inst.emailInstitucional || String(inst.emailInstitucional).trim() === "") {
+        console.log("❌ Falta: Correo electrónico institucional");
+        return false;
+      }
+      if (!inst.caracteristic || String(inst.caracteristic).trim() === "") {
+        console.log("❌ Falta: Características del EE");
+        return false;
+      }
+      if (!inst.territorialEntity || String(inst.territorialEntity).trim() === "") {
+        console.log("❌ Falta: Entidad Territorial Certificada (ETC)");
+        return false;
+      }
+      if (!inst.testsKnow || (inst.testsKnow !== "Sí" && inst.testsKnow !== "No")) {
+        console.log("❌ Falta: Respuesta sobre participación en el evento");
+        return false;
+      }
+      
+      console.log("✅ Paso 0 válido - Todos los campos completos");
       return true;
     }
+    
+    // Paso 1: Líder
     if (currentStep === 1) {
       const leader = (lideres && lideres[0]) || {};
-      if (!leader.nameLeaders || String(leader.nameLeaders).trim() === "") return false;
-      if (!leader.email || String(leader.email).trim() === "") return false;
+      console.log("📋 Validando paso 1 - Líder:", leader);
+      
+      if (!leader.nameLeaders || String(leader.nameLeaders).trim() === "") {
+        console.log("❌ Falta: Nombre del líder");
+        return false;
+      }
+      if (!leader.identityDocument || String(leader.identityDocument).trim() === "" || leader.identityDocument.length < 8) {
+        console.log("❌ Falta: Documento de identidad (mínimo 8 dígitos)");
+        return false;
+      }
+      if (!leader.email || String(leader.email).trim() === "") {
+        console.log("❌ Falta: Email del líder");
+        return false;
+      }
+      if (!leader.position || String(leader.position).trim() === "") {
+        console.log("❌ Falta: Cargo del líder");
+        return false;
+      }
+      if (!leader.phone || leader.phone === 0 || String(leader.phone).trim() === "") {
+        console.log("❌ Falta: Teléfono del líder");
+        return false;
+      }
+      
+      console.log("✅ Paso 1 válido - Todos los campos completos");
       return true;
     }
+    
+    // Paso 2: Identificación de la Experiencia
     if (currentStep === 2) {
       const ident = identificacionForm || {};
-      if (!ident.nameExperience || String(ident.nameExperience).trim() === "") return false;
-      if (!ident.thematicFocus || String(ident.thematicFocus).trim() === "") return false;
+      console.log("📋 Validando paso 2 - Identificación Experiencia:", ident);
+      
+      if (!ident.nameExperience || String(ident.nameExperience).trim() === "") {
+        console.log("❌ Falta: Nombre de la experiencia");
+        return false;
+      }
+      if (!ident.thematicFocus || String(ident.thematicFocus).trim() === "") {
+        console.log("❌ Falta: Enfoque temático");
+        return false;
+      }
+      
       const dev = ident.development || {};
       const hasDev = [dev.days, dev.months, dev.years].some(
         (v) => v !== undefined && v !== null && String(v).trim() !== "" && !isNaN(Number(v))
       );
-      if (!hasDev) return false;
+      if (!hasDev) {
+        console.log("❌ Falta: Tiempo de desarrollo");
+        return false;
+      }
+      
+      console.log("✅ Paso 2 válido");
       return true;
     }
+    
+    // Paso 3: Temática y Desarrollo
+    if (currentStep === 3) {
+      const tem = tematicaForm || {};
+      console.log("📋 Validando paso 3 - Temática:", tem);
+      
+      // 1. Línea temática (radio)
+      if (!tem.thematicLocation || String(tem.thematicLocation).trim() === "") {
+        console.log("❌ Falta: Línea temática");
+        return false;
+      }
+      
+      // 2. Modelo educativo (checkboxes - al menos uno)
+      if (!Array.isArray(tem.Population) || tem.Population.length === 0) {
+        console.log("❌ Falta: Modelo educativo");
+        return false;
+      }
+      
+      // 3. Técnicas SENA (checkboxes - al menos una)
+      if (!Array.isArray(tem.CrossCuttingProject) || tem.CrossCuttingProject.length === 0) {
+        console.log("❌ Falta: Técnicas en articulación con SENA");
+        return false;
+      }
+      
+      // 4. Grados (checkboxes - al menos uno)
+      if (!Array.isArray(tem.grades) || tem.grades.length === 0) {
+        console.log("❌ Falta: Grados donde se desarrolla la experiencia");
+        return false;
+      }
+      
+      // 5. Grupo poblacional (checkboxes - al menos uno)
+      if (!Array.isArray(tem.populationGradeIds) || tem.populationGradeIds.length === 0) {
+        console.log("❌ Falta: Grupo poblacional");
+        return false;
+      }
+      
+      // 6. Apoyo recibido (checkboxes - al menos uno)
+      if (!Array.isArray(tem.PedagogicalStrategies) || tem.PedagogicalStrategies.length === 0) {
+        console.log("❌ Falta: Apoyo recibido para formulación/desarrollo");
+        return false;
+      }
+      
+      // 7. Vinculación en PEI (radio)
+      if (!tem.Coverage || String(tem.Coverage).trim() === "") {
+        console.log("❌ Falta: Vinculación en el PEI");
+        return false;
+      }
+      
+      // 8. Reconocimiento (radio)
+      if (!tem.recognition || String(tem.recognition).trim() === "") {
+        console.log("❌ Falta: Reconocimiento de la experiencia");
+        return false;
+      }
+      
+      // 9. Activos/soportes de la experiencia (checkboxes - al menos uno)
+      if (!Array.isArray(tem.socialization) || tem.socialization.length === 0) {
+        console.log("❌ Falta: Activos de la experiencia (producciones, publicaciones, etc.)");
+        return false;
+      }
+      
+      console.log("✅ Paso 3 válido - Todos los campos completos");
+      return true;
+    }
+    
+    // Paso 4: Componentes
+    if (currentStep === 4) {
+      const obj = objectiveExperience || {};
+      console.log("📋 Validando paso 4 - Componentes:", obj);
+      
+      // 1. Descripción del problema (textarea)
+      if (!obj.descriptionProblem || String(obj.descriptionProblem).trim() === "") {
+        console.log("❌ Falta: Descripción del problema");
+        return false;
+      }
+      
+      // 2. Objetivo propuesto (textarea)
+      if (!obj.objectiveExperience || String(obj.objectiveExperience).trim() === "") {
+        console.log("❌ Falta: Objetivo propuesto");
+        return false;
+      }
+      
+      // 3. Logros obtenidos (textarea)
+      if (!obj.enfoqueExperience || String(obj.enfoqueExperience).trim() === "") {
+        console.log("❌ Falta: Logros obtenidos");
+        return false;
+      }
+      
+      // 4. Productos generados (textarea)
+      if (!obj.methodologias || String(obj.methodologias).trim() === "") {
+        console.log("❌ Falta: Productos generados");
+        return false;
+      }
+      
+      // 5. Articulación PEI-PMI (radio)
+      if (!obj.pmi || String(obj.pmi).trim() === "") {
+        console.log("❌ Falta: Articulación con PEI y PMI");
+        return false;
+      }
+      
+      // 6. Coherencia con contexto NNAJ (radio)
+      if (!obj.nnaj || String(obj.nnaj).trim() === "") {
+        console.log("❌ Falta: Coherencia con contexto y necesidades de NNAJ");
+        return false;
+      }
+      
+      // 7. Resultados y logros (radio)
+      if (!obj.innovationExperience || String(obj.innovationExperience).trim() === "") {
+        console.log("❌ Falta: Cuenta con resultados y logros");
+        return false;
+      }
+      
+      console.log("✅ Paso 4 válido - Todos los campos completos");
+      return true;
+    }
+    
+    // Paso 5: Testimonios/Soportes
+    if (currentStep === 5) {
+      const info = seguimientoEvaluacion || {};
+      console.log("📋 Validando paso 5 - Testimonios/Soportes:", info);
+      console.log("📋 Summary:", (info as any).summary);
+      console.log("📋 metaphoricalPhrase:", info.metaphoricalPhrase);
+      console.log("📋 testimony:", info.testimony);
+      console.log("📋 followEvaluation:", info.followEvaluation);
+      
+      // 1. Reorganización y actualización permanente (radio)
+      const monitoringEval = (info as any).summary?.[0]?.monitoringEvaluation || "";
+      console.log("📋 monitoringEval extraído:", monitoringEval);
+      if (!monitoringEval || String(monitoringEval).trim() === "") {
+        console.log("❌ Falta: Reorganización y actualización permanente");
+        return false;
+      }
+      
+      // 2. Empoderamiento y participación (radio)
+      if (!info.metaphoricalPhrase || String(info.metaphoricalPhrase).trim() === "") {
+        console.log("❌ Falta: Empoderamiento y participación");
+        return false;
+      }
+      
+      // 3. Recursos novedosos (radio)
+      if (!info.testimony || String(info.testimony).trim() === "") {
+        console.log("❌ Falta: Recursos novedosos para desarrollo");
+        return false;
+      }
+      
+      // 4. Estrategias de permanencia (radio)
+      if (!info.followEvaluation || String(info.followEvaluation).trim() === "") {
+        console.log("❌ Falta: Estrategias de permanencia y mejora continua");
+        return false;
+      }
+      
+      console.log("✅ Paso 5 válido - Todos los campos completos");
+      return true;
+    }
+    
+    // Paso 6: Monitoreos
+    if (currentStep === 6) {
+      const mon = informacionApoyo || {};
+      console.log("📋 Validando paso 6 - Monitoreos:", mon);
+      
+      // 1. Metodologías de referencia (radio)
+      if (!mon.monitoringEvaluation || String(mon.monitoringEvaluation).trim() === "") {
+        console.log("❌ Falta: Metodologías de referencia");
+        return false;
+      }
+      
+      // 2. Mecanismos de seguimiento (radio)
+      if (!mon.sustainability || String(mon.sustainability).trim() === "") {
+        console.log("❌ Falta: Mecanismos de seguimiento y evaluación");
+        return false;
+      }
+      
+      console.log("✅ Paso 6 válido - Todos los campos completos");
+      return true;
+    }
+    
+    // Paso 7: Documentos
+    if (currentStep === 7) {
+      const doc = pdfFile || {};
+      console.log("📋 Validando paso 7 - Documentos:", doc);
+      
+      // 1. PDF Proyecto Experiencia Significativa
+      if (!doc.urlPdfExperience && !doc.name) {
+        console.log("❌ Falta: PDF Proyecto Experiencia Significativa");
+        return false;
+      }
+      
+      // 2. PDF Oficio de presentación
+      if (!doc.urlPdf) {
+        console.log("❌ Falta: PDF Oficio de presentación");
+        return false;
+      }
+      
+      // 3. Link de espacios de divulgación
+      if (!doc.urlLink || String(doc.urlLink).trim() === "") {
+        console.log("❌ Falta: Enlace de espacios de divulgación");
+        return false;
+      }
+      
+      console.log("✅ Paso 7 válido - Todos los documentos completos");
+      return true;
+    }
+    
+    console.log("✅ Paso válido (sin validaciones obligatorias)");
     return true;
   };
 
@@ -1822,7 +2175,12 @@ const AddExperience: React.FC<AddExperienceProps> = ({
                 <button
                   type="button"
                   onClick={() => handleSubmit()}
-                  className="bg-sky-600 text-white px-4 py-2 rounded hover:bg-sky-700"
+                  disabled={!isCurrentStepValidSync()}
+                  className={`px-4 py-2 rounded font-medium transition-all duration-200 ${
+                    !isCurrentStepValidSync()
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed opacity-60"
+                      : "bg-sky-600 text-white hover:bg-sky-700"
+                  }`}
                 >
                   Guardar Experiencia
                 </button>

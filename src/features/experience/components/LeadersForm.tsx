@@ -31,10 +31,6 @@ const LeadersForm: React.FC<LeadersFormProps> = ({ value, onChange, index, error
     onChange(nuevosLideres);
   };
 
-  const getCharacterCountStyle = (text: string, max: number) => {
-    return text.length >= max ? "text-green-500" : "text-red-500";
-  };
-
   return (
     <div className="mb-6">
       <h1 className="text-2xl font-semibold text-[#0b6fa8] mb-1">Líder Principal De La Experiencia</h1>
@@ -59,7 +55,7 @@ const LeadersForm: React.FC<LeadersFormProps> = ({ value, onChange, index, error
                     handleChange(actualIndex, "nameLeaders", val);
                   }}
                 />
-                <span className={`absolute bottom-2 right-2 text-xs ${getCharacterCountStyle(lider?.nameLeaders || "", MAX_CHARACTERS.nameLeaders)}`}>
+                <span className="absolute bottom-2 right-2 inline-flex items-center justify-center w-12 h-6 bg-gray-100 border border-gray-200 rounded text-xs text-gray-500">
                   {lider?.nameLeaders?.length || 0}/{MAX_CHARACTERS.nameLeaders}
                 </span>
               </div>
@@ -84,9 +80,7 @@ const LeadersForm: React.FC<LeadersFormProps> = ({ value, onChange, index, error
                       handleChange(actualIndex, "identityDocument", val);
                     }}
                   />
-                  <span
-                    className={`absolute bottom-2 right-2 text-xs ${lider?.identityDocument && lider.identityDocument.length >= 8 ? "text-green-500" : "text-red-500"}`}
-                  >
+                  <span className={`absolute bottom-2 right-2 inline-flex items-center justify-center w-12 h-6 bg-gray-100 border border-gray-200 rounded text-xs ${(lider?.identityDocument?.length || 0) < 8 ? "text-red-500" : "text-gray-500"}`}>
                     {lider?.identityDocument?.length || 0}/{MAX_CHARACTERS.identityDocument}
                   </span>
                 </div>
@@ -121,14 +115,14 @@ const LeadersForm: React.FC<LeadersFormProps> = ({ value, onChange, index, error
                       handleChange(actualIndex, "position", val);
                     }}
                   />
-                  <span className={`absolute bottom-2 right-2 text-xs ${getCharacterCountStyle(lider?.position || "", MAX_CHARACTERS.position)}`}>
+                  <span className="absolute bottom-2 right-2 inline-flex items-center justify-center w-12 h-6 bg-gray-100 border border-gray-200 rounded text-xs text-gray-500">
                     {lider?.position?.length || 0}/{MAX_CHARACTERS.position}
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="block font-medium">Teléfonos de contacto</label>
+                <label className="block font-medium">Teléfonos de contacto <span className="text-red-500">*</span></label>
                 <input
                   type="tel"
                   inputMode="numeric"

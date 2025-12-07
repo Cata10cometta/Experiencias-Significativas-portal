@@ -1,7 +1,8 @@
 import axios from "axios";
 import { DataSelectRequest } from "../../shared/types/HelperTypes";
 
-const API_URL = "https://localhost:7263/api/Helper"; // URL de tu backend
+const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
+const API_URL = `${API_BASE}/api/Helper`;
 
 export const getEnum = async (
   enumName: string,

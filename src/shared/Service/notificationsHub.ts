@@ -1,8 +1,8 @@
 import * as signalR from "@microsoft/signalr";
-// Update the path below to the correct location of Auth.ts or Auth.js
 import { getToken } from "../../Api/Services/Auth";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://localhost:7263";
+// Usar la misma base URL que Config.ts
+const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 let connection: signalR.HubConnection | null = null;
 
