@@ -14,34 +14,6 @@ import PDFUploader from "./PDF";
 
 import type { Grade } from "../types/experienceTypes";
 
-// Emitir notificación tras crear experiencia
-async function notifyExperienceCreated(experienceId: number | null | undefined) {
-  if (!experienceId || !Number.isFinite(experienceId)) {
-    console.warn('notifyExperienceCreated skipped because experienceId is invalid', experienceId);
-    return;
-  }
-
-  const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
-  const token = localStorage.getItem('token');
-
-  try {
-    const res = await fetch(`${API_BASE}/api/Notifications/experience-created`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ experienceId }),
-    });
-
-    if (!res.ok) {
-      const message = await res.text().catch(() => `HTTP ${res.status}`);
-      console.error('notifyExperienceCreated failed', res.status, message);
-    }
-  } catch (err) {
-    console.error('notifyExperienceCreated exception', err);
-  }
-}
 
 // Utilidad para obtener el userId del token o localStorage
 function getUserId(token?: string | null) {
@@ -1332,7 +1304,6 @@ const AddExperience: React.FC<AddExperienceProps> = ({
       }
 
       if (createdId && Number.isFinite(createdId) && createdId > 0) {
-        await notifyExperienceCreated(createdId);
         const pdfEndpoint = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api/Experience/${createdId}/generate-pdf`;
         try {
           const pdfRes = await fetch(pdfEndpoint, {
@@ -1364,8 +1335,12 @@ const AddExperience: React.FC<AddExperienceProps> = ({
       }
 
       try {
+        // Pausar notificaciones SignalR
+        localStorage.setItem('pauseSignalRNotification', '1');
         await Swal.fire({ title: 'Éxito', text: 'Experiencia registrada correctamente', icon: 'success', confirmButtonText: 'Aceptar' });
       } catch { }
+      // Quitar pausa y permitir mostrar la notificación
+      localStorage.removeItem('pauseSignalRNotification');
       if (onVolver) onVolver();
     } catch (err: any) {
       const msg = err?.message || "Error inesperado al registrar la experiencia";
