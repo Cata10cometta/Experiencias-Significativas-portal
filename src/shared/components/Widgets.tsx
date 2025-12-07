@@ -11,6 +11,9 @@ import { hasTourBeenSeen, markTourSeen } from "../utils/tourStorage";
 import { startNotificationHub, stopNotificationHub } from "../Service/notificationsHub";
 
 const Widgets: React.FC = () => {
+  // Bandera para pausar la notificación hasta que el usuario cierre el modal de éxito
+  const [pauseNotification, setPauseNotification] = useState(false);
+
   const tourKey = "widgetsTourDone";
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedExperienceId, setSelectedExperienceId] = useState<number | null>(null);
@@ -24,12 +27,14 @@ const Widgets: React.FC = () => {
   const [notifModalOpen, setNotifModalOpen] = useState<boolean>(false);
   const [notifCount, setNotifCount] = useState<number>(0);
   const [runWidgetsTour, setRunWidgetsTour] = useState(false);
+  const [notifications, setNotifications] = useState<Array<{id: string; name: string; timestamp: number}>>([]);
 
   // Referencia para controlar el scroll del carrusel (se usa para ambos)
   const carouselRef = useRef<HTMLDivElement | null>(null);
 
   // Función para reproducir sonido de notificación
   const playNotificationSound = useCallback(() => {
+    console.log('🔊 Intentando reproducir sonido de notificación...');
     try {
       // Crear un sonido de notificación usando Web Audio API
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -50,49 +55,89 @@ const Widgets: React.FC = () => {
       
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.5);
+      console.log('✅ Sonido reproducido exitosamente');
     } catch (error) {
-      console.log('No se pudo reproducir el sonido de notificación:', error);
+      console.log('❌ No se pudo reproducir el sonido de notificación:', error);
     }
   }, []);
 
+  // Refs para evitar re-renders innecesarios de SignalR
+  const pauseNotificationRef = useRef(pauseNotification);
+  
+  useEffect(() => {
+    pauseNotificationRef.current = pauseNotification;
+  }, [pauseNotification]);
+
   // Manejar notificaciones en tiempo real de SignalR
   const handleSignalRNotification = useCallback((message: any) => {
+    // Si está pausado, no mostrar la notificación
+    if (pauseNotificationRef.current) {
+      // Guardar la notificación pendiente para mostrarla después
+      localStorage.setItem('pendingSignalRNotification', JSON.stringify(message));
+      return;
+    }
     console.log('🔔 Nueva notificación recibida en Widgets:', message);
-    
     if (!message) return;
-
-    // Reproducir sonido de notificación
-    playNotificationSound();
-
-    // Extraer información del mensaje
-    const experienceName = message.ExperienceName ?? message.experienceName ?? message.Title ?? message.title ?? 'Nueva experiencia';
-    const createdBy = message.CreatedBy ?? message.createdBy ?? message.userName ?? 'Usuario';
     
-    // Mostrar toast de nueva notificación (5 minutos = 300000 ms)
-    // Solo muestra el toast, NO abre el modal ni incrementa el contador
-    Swal.fire({
-      title: '🔔 Nueva Experiencia Registrada',
-      html: `<strong>${experienceName}</strong><br/>Creada por: ${createdBy}`,
-      icon: 'info',
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      showCloseButton: true,
-      timer: 300000, // 5 minutos
-      timerProgressBar: true,
-    });
-  }, [playNotificationSound]);
+    // Reproducir sonido
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+      oscillator.type = 'sine';
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+      console.log('Error reproduciendo sonido:', error);
+    }
+    
+    const experienceName = message.ExperienceName ?? message.experienceName ?? message.Title ?? message.title ?? 'Nueva experiencia';
+    const notificationId = `notif-${Date.now()}-${Math.random()}`;
+    
+    // Agregar a la lista de notificaciones
+    setNotifications(prev => [...prev, { id: notificationId, name: experienceName, timestamp: Date.now() }]);
+    
+    // Auto-remover después de 2 minutos (120000 ms)
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+    }, 120000);
+  }, []); // Sin dependencias - usa ref para pauseNotification
 
-  // Iniciar conexión SignalR al montar el componente
+  // Al montar, pausar la notificación si venimos de registrar experiencia
+  useEffect(() => {
+    // Si hay una bandera en localStorage, pausar notificaciones
+    if (localStorage.getItem('pauseSignalRNotification') === '1') {
+      setPauseNotification(true);
+    }
+  }, []);
+
+  // Cuando se quite la pausa, mostrar la notificación pendiente si existe
+  useEffect(() => {
+    if (!pauseNotification) {
+      const pending = localStorage.getItem('pendingSignalRNotification');
+      if (pending) {
+        try {
+          const msg = JSON.parse(pending);
+          localStorage.removeItem('pendingSignalRNotification');
+          handleSignalRNotification(msg);
+        } catch {}
+      }
+    }
+  }, [pauseNotification, handleSignalRNotification]);
+
+  // Iniciar conexión SignalR SOLO UNA VEZ al montar el componente
   useEffect(() => {
     console.log('🚀 Iniciando conexión SignalR para notificaciones...');
     startNotificationHub(handleSignalRNotification);
-    
-    return () => {
-      console.log('🛑 Deteniendo conexión SignalR...');
-      stopNotificationHub();
-    };
-  }, [handleSignalRNotification]);  // --- Lógica de Carga de Datos (SIN CAMBIOS) ---
+    // Mantener la conexión abierta mientras el usuario esté logueado
+  }, []); // Array vacío = solo se ejecuta una vez al montar  // --- Lógica de Carga de Datos (SIN CAMBIOS) ---
   React.useEffect(() => {
     const token = localStorage.getItem("token");
     fetch("/api/Experience/getAll", {
@@ -252,7 +297,7 @@ const Widgets: React.FC = () => {
               {/* Botón para ver todas */}
               <button
                 onClick={() => setSelectedEje(null)}
-                className={`inline-flex flex-shrink-0 items-center whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-colors duration-200
+                className={`inline-flex flex-shrink-0 items-center whitespace-nowrap px-5 py-2.5 rounded-full! text-sm font-medium transition-colors duration-200
                   ${selectedEje === null ? 'bg-white text-indigo-700 shadow-md ring-2 ring-indigo-300' : 'bg-indigo-600 text-white/90 hover:bg-indigo-500'}
                 `}
               >
@@ -263,7 +308,7 @@ const Widgets: React.FC = () => {
                 <button
                   key={eje.id}
                   onClick={() => setSelectedEje(eje.id)}
-                  className={`inline-flex flex-shrink-0 items-center whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-colors duration-200
+                  className={`inline-flex flex-shrink-0 items-center whitespace-nowrap px-5 py-2.5 rounded-full! text-sm font-medium transition-colors duration-200
                     ${selectedEje === eje.id ? 'bg-white text-indigo-700 shadow-md ring-2 ring-indigo-300' : 'bg-indigo-600 text-white/90 hover:bg-indigo-500'}
                   `}
                 >
@@ -434,9 +479,37 @@ const Widgets: React.FC = () => {
         />
       )}
 
-      <NotificationsModal open={notifModalOpen} onClose={() => setNotifModalOpen(false)} onCountChange={setNotifCount} />
-    </div>
-  );
+      <NotificationsModal open={notifModalOpen} onClose={() => setNotifModalOpen(false)} onCountChange={setNotifCount} />
+      
+      {/* Notificaciones apilables en la esquina superior derecha */}
+      <div className="notifications-container fixed top-4 right-4 bottom-4 z-[10000] flex flex-col gap-3 overflow-y-auto" style={{ maxWidth: '400px', maxHeight: 'calc(100vh - 32px)' }}>
+        {notifications.map((notif) => (
+          <div
+            key={notif.id}
+            className="bg-white rounded-lg shadow-lg border-l-4 border-indigo-500 p-4 flex items-center gap-3 animate-slide-in-right"
+          >
+            <div className="flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full p-2.5 shadow-md">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-base font-semibold text-gray-900">🔔 Nueva Experiencia Registrada</p>
+              <p className="text-base text-gray-600 mt-1 line-clamp-2">{notif.name}</p>
+            </div>
+            <button
+              onClick={() => setNotifications(prev => prev.filter(n => n.id !== notif.id))}
+              className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 
