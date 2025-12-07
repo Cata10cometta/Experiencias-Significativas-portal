@@ -47,10 +47,10 @@ const IdentificationForm: React.FC<IdentificationFormProps> = ({ value, onChange
     const fetchStates = async () => {
       setLoadingStates(true);
       try {
-        const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+        const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
         const attempts = [
-          API_BASE ? `${API_BASE}/api/StateExperience/getAll` : "https://localhost:7263/api/StateExperience/getAll",
-          API_BASE ? `${API_BASE}/api/State/getAll` : "https://localhost:7263/api/State/getAll",
+          `${API_BASE}/api/StateExperience/getAll`,
+          `${API_BASE}/api/State/getAll`,
         ];
         const token = getToken();
         for (const url of attempts) {
@@ -80,10 +80,8 @@ const IdentificationForm: React.FC<IdentificationFormProps> = ({ value, onChange
     const fetchLines = async () => {
       setLoadingLines(true);
       try {
-        const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-        const endpoint = API_BASE
-          ? `${API_BASE}/api/LineThematic/getAll`
-          : "https://localhost:7263/api/LineThematic/getAll";
+        const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
+        const endpoint = `${API_BASE}/api/LineThematic/getAll`;
 
         const token = getToken();
         const res = await fetch(endpoint, {

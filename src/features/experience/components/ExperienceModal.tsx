@@ -56,8 +56,9 @@ const ExperienceModal: React.FC<ExperienceModalProps> = ({ show, onClose, experi
         if (show && experienceId) {
             setLoading(true);
             const token = localStorage.getItem("token");
+            const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
-            fetch(`https://localhost:7263/api/Experience/${experienceId}/detail`, {
+            fetch(`${API_BASE}/api/Experience/${experienceId}/detail`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -185,7 +186,7 @@ const ExperienceModal: React.FC<ExperienceModalProps> = ({ show, onClose, experi
                                         type="button"
                                         onClick={() => openPdf(pdf2)}
                                         // Botón: Azul oscuro (Blue-800) con texto blanco
-                                        className="flex items-center justify-center gap-1 bg-blue-800 hover:bg-blue-700 text-white font-semibold py-1.5 px-2 rounded-lg shadow-lg transition duration-150 text-xs"
+                                        className="flex items-center justify-center gap-1 bg-blue-800 hover:bg-blue-700 text-white font-semibold py-1.5 px-2 rounded-lg! shadow-lg transition duration-150 text-xs"
                                         title="Abrir Oficio de presentación"
                                     >
                                         <DocumentTextIcon className="w-4 h-4" />
@@ -205,7 +206,7 @@ const ExperienceModal: React.FC<ExperienceModalProps> = ({ show, onClose, experi
                                         type="button"
                                         onClick={() => openPdf(pdf)}
                                         // Botón: Azul oscuro (Blue-800) con texto blanco
-                                        className="flex items-center justify-center gap-1 bg-blue-800 hover:bg-blue-700 text-white font-semibold py-1.5 px-2 rounded-lg shadow-lg transition duration-150 text-xs"
+                                        className="flex items-center justify-center gap-1 bg-blue-800 hover:bg-blue-700 text-white font-semibold py-1.5 px-2 rounded-lg! shadow-lg transition duration-150 text-xs"
                                         title="Abrir Proyecto de Experiencia Significativa"
                                     >
                                         <DocumentTextIcon className="w-4 h-4" />
@@ -237,7 +238,7 @@ const ExperienceModal: React.FC<ExperienceModalProps> = ({ show, onClose, experi
                 <div className="p-6 border-t border-gray-200 flex justify-end">
                     <button 
                         onClick={onClose} 
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-8 rounded-lg transition duration-150 shadow-sm"
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-8 rounded-lg! transition duration-150 shadow-sm"
                     >
                         Listo
                     </button>

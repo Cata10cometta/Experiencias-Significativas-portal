@@ -351,7 +351,7 @@ const Widgets: React.FC = () => {
           {selectedExperience && (
             <button
               onClick={() => setModalOpen(true)}
-            className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-white text-amber-700 flex items-center justify-center shadow-lg hover:bg-gray-100 transition duration-200 flex-shrink-0"
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl! bg-white text-amber-700 flex items-center justify-center shadow-lg hover:bg-gray-100 transition duration-200 flex-shrink-0"
 
               aria-label="Ver detalle de la experiencia"
             >

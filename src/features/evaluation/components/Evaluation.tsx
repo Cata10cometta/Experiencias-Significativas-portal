@@ -127,9 +127,9 @@ function Evaluation({ experienceId, experiences = [], onClose, onExperienceUpdat
         const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
         for (let attempt = 0; attempt < attempts; attempt++) {
-            for (const p of tryPaths) {
+                for (const p of tryPaths) {
                 try {
-                    const base = (import.meta.env.VITE_API_BASE_URL as string) || 'https://localhost:7263';
+                    const base = import.meta.env.VITE_API_BASE_URL as string;
                     // Preparar posibles URLs: absoluta y relativa
                     const candidates = [
                         p.startsWith('http') ? p : `${base.replace(/\/$/, '')}/api/${p}`,
@@ -220,7 +220,7 @@ function Evaluation({ experienceId, experiences = [], onClose, onExperienceUpdat
 
         // último recurso: llamada absoluta al backend list
         try {
-            const base = (import.meta.env.VITE_API_BASE_URL as string) || 'https://localhost:7263';
+            const base = import.meta.env.VITE_API_BASE_URL as string;
             console.debug('locateCreatedEvaluationId: comprobando lista absoluta en base', base);
             const r = await axios.get(`${base.replace(/\/$/, '')}/api/Evaluation`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined });
             if (r && r.status === 200 && Array.isArray(r.data)) {
@@ -560,7 +560,7 @@ function Evaluation({ experienceId, experiences = [], onClose, onExperienceUpdat
 
     // 1) Construir base para llamada absoluta a /api/Evaluation/{id}/generate-pdf
     // Si no hay VITE_API_BASE_URL, usamos el backend por defecto donde indicaste que funciona.
-    const envBase = (import.meta.env.VITE_API_BASE_URL as string) || "https://localhost:7263";
+    const envBase = import.meta.env.VITE_API_BASE_URL as string;
         const token = localStorage.getItem("token");
 
         try {

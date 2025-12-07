@@ -44,7 +44,7 @@ const AddModuleForm: React.FC<AddModuleFormProps> = ({ onClose, onAdded }) => {
         else setModules([]);
       })
       .catch(() => setModules([]));
-    axios.get("https://localhost:7263/api/Form/getAll", {
+    axios.get("/api/Form/getAll", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
@@ -87,7 +87,7 @@ const AddModuleForm: React.FC<AddModuleFormProps> = ({ onClose, onAdded }) => {
     setError(null);
     const token = localStorage.getItem("token");
     try {
-      const res = await axios.post("https://localhost:7263/api/Form", {
+      const res = await axios.post("/api/Form", {
         id: 0,
         name: newFormName.trim(),
         path: newFormPath.trim(),
@@ -134,7 +134,7 @@ const AddModuleForm: React.FC<AddModuleFormProps> = ({ onClose, onAdded }) => {
     }
     const token = localStorage.getItem("token");
     try {
-      await axios.post("https://localhost:7263/api/FormModule", {
+      await axios.post("/api/FormModule", {
         formId: formIdNum,
         moduleId: moduleIdNum,
       }, {
@@ -182,8 +182,10 @@ const AddModuleForm: React.FC<AddModuleFormProps> = ({ onClose, onAdded }) => {
           <div className="mb-4">
             <input value={newModuleName} onChange={e => setNewModuleName(e.target.value)} className="w-full mb-2 p-2 border rounded" placeholder="Nombre del nuevo módulo" required />
             <input value={newModuleDescription} onChange={e => setNewModuleDescription(e.target.value)} className="w-full mb-2 p-2 border rounded" placeholder="Descripción del nuevo módulo" required />
-            <button type="button" className="text-blue-600 text-sm underline" onClick={() => { setShowNewModule(false); setNewModuleName(""); setNewModuleDescription(""); }}>Seleccionar uno existente</button>
-            <button type="button" className="ml-4 px-3 py-1 rounded bg-sky-600 text-white hover:bg-sky-700" onClick={handleCreateModule} disabled={creatingModule || !newModuleName.trim() || !newModuleDescription.trim()}>{creatingModule ? "Creando..." : "Crear módulo"}</button>
+            <div className="flex gap-2">
+              <button type="button" className="px-3 py-2 rounded bg-sky-600 text-white hover:bg-sky-700 whitespace-nowrap font-medium" onClick={() => { setShowNewModule(false); setNewModuleName(""); setNewModuleDescription(""); }}>Seleccionar uno existente</button>
+              <button type="button" className="px-3 py-2 rounded bg-sky-600 text-white hover:bg-sky-700 font-medium" onClick={handleCreateModule} disabled={creatingModule || !newModuleName.trim() || !newModuleDescription.trim()}>{creatingModule ? "Creando..." : "Crear módulo"}</button>
+            </div>
           </div>
         )}
 
@@ -219,8 +221,10 @@ const AddModuleForm: React.FC<AddModuleFormProps> = ({ onClose, onAdded }) => {
             <input value={newFormDescription} onChange={e => setNewFormDescription(e.target.value)} className="w-full mb-2 p-2 border rounded" placeholder="Descripción del nuevo formulario" required />
             <input value={newFormIcon} onChange={e => setNewFormIcon(e.target.value)} className="w-full mb-2 p-2 border rounded" placeholder="Icono (URL o nombre)" required />
             <input type="number" value={newFormOrder} onChange={e => setNewFormOrder(Number(e.target.value))} className="w-full mb-2 p-2 border rounded" placeholder="Orden" min={0} required />
-            <button type="button" className="text-blue-600 text-sm underline" onClick={() => { setShowNewForm(false); setNewFormName(""); setNewFormPath(""); setNewFormDescription(""); setNewFormIcon(""); setNewFormOrder(0); }}>Seleccionar uno existente</button>
-            <button type="button" className="ml-4 px-3 py-1 rounded bg-sky-600 text-white hover:bg-sky-700" onClick={handleCreateForm} disabled={creatingForm || !newFormName.trim() || !newFormPath.trim() || !newFormDescription.trim() || !newFormIcon.trim() || isNaN(Number(newFormOrder))}>{creatingForm ? "Creando..." : "Crear formulario"}</button>
+            <div className="flex gap-2">
+              <button type="button" className="px-3 py-2 rounded bg-sky-600 text-white hover:bg-sky-700 whitespace-nowrap font-medium" onClick={() => { setShowNewForm(false); setNewFormName(""); setNewFormPath(""); setNewFormDescription(""); setNewFormIcon(""); setNewFormOrder(0); }}>Seleccionar uno existente</button>
+              <button type="button" className="px-3 py-2 rounded bg-sky-600 text-white hover:bg-sky-700 font-medium" onClick={handleCreateForm} disabled={creatingForm || !newFormName.trim() || !newFormPath.trim() || !newFormDescription.trim() || !newFormIcon.trim() || isNaN(Number(newFormOrder))}>{creatingForm ? "Creando..." : "Crear formulario"}</button>
+            </div>
           </div>
         )}
 

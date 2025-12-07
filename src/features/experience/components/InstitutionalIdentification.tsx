@@ -227,7 +227,7 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
       {/* Cuarta fila: Zona y Dirección */}
       <div className="grid grid-cols-2 gap-6 mb-6">
         <div>
-          <label className="font-medium">Zona del EE</label>
+          <label className="font-medium">Zona del EE <span className="text-red-500">*</span></label>
           <input
             type="text"
             name="eZone"
@@ -239,7 +239,7 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
           {errors?.eZone && <p className="text-red-600 text-sm mt-1">{errors.eZone}</p>}
         </div>
         <div>
-          <label className="font-medium">Dirección</label>
+          <label className="font-medium">Dirección <span className="text-red-500">*</span></label>
           <input
             type="text"
             name="address"
@@ -255,7 +255,7 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
       {/* Teléfonos de contacto (solo una fila, ya está la Zona arriba) */}
       <div className="grid grid-cols-1 gap-6 mb-6">
         <div>
-          <label className="font-medium">Teléfonos de contacto</label>
+          <label className="font-medium">Teléfonos de contacto <span className="text-red-500">*</span></label>
           <input
             type="text"
             name="phone"
@@ -276,7 +276,7 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
 
       {/* Sexta fila: Correos institucionales */}
       <div className="mb-6">
-        <label>Correos electrónicos institucionales</label>
+        <label>Correos electrónicos institucionales <span className="text-red-500">*</span></label>
         <div className="relative">
           <input
             type="email"
@@ -339,7 +339,7 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
 
       {/* Séptima fila: Características del EE */}
       <div className="mb-6 relative">
-        <label className="block font-medium">CARACTERÍSTICAS DEL EE</label>
+        <label className="block font-medium">CARACTERÍSTICAS DEL EE <span className="text-red-500">*</span></label>
         <p className="text-sm text-gray-600 mb-2">
           Describa en máximo cuatro líneas las características del establecimiento educativo.
         </p>
@@ -364,7 +364,7 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
       {/* Octava fila: ETC y radios */}
       <div className="grid grid-cols-2 gap-6 items-end mb-4">
         <div>
-          <label>Entidad Territorial Certificada (ETC)</label>
+          <label>Entidad Territorial Certificada (ETC) <span className="text-red-500">*</span></label>
           <input
             type="text"
             name="territorialEntity"
@@ -376,7 +376,7 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
           {errors?.territorialEntity && <p className="text-red-600 text-sm mt-1">{errors.territorialEntity}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1">¿Participará en el Evento Compartir de Saberes?</label>
+          <label className="mb-1">¿Participará en el Evento Compartir de Saberes? <span className="text-red-500">*</span></label>
           <div className="flex items-center gap-4 mt-1">
             <label className="flex items-center">
               <input
