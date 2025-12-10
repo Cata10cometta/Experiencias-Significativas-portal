@@ -194,11 +194,11 @@ const LoginPage: React.FC = () => {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="login-form space-y-4 sm:space-y-5 lg:space-y-6">
                   <div>
-                    <label htmlFor="username" className="block text-sm sm:text-base md:text-lg lg:text-2xl xl:text-3xl text-slate-300 mb-1 sm:mb-2">Ingrese el correo electrónico</label>
+                    <label htmlFor="username" className="block text-sm sm:text-base md:text-lg lg:text-2xl xl:text-3xl text-slate-300 mb-1 sm:mb-2">Ingrese el nombre de usuario</label>
                     <input
                       id="username"
-                      aria-label="Correo"
-                      placeholder="Correo"
+                      aria-label="Nombre de usuario"
+                      placeholder="Nombre de usuario"
                       type="text"
                       {...register("username", { required: "El Username es requerido" })}
                       className="w-full px-4 py-2.5 sm:px-5 sm:py-3 lg:px-6 lg:py-4 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-300 text-sm sm:text-base md:text-lg lg:text-2xl xl:text-3xl"

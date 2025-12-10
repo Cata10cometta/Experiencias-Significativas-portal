@@ -1117,7 +1117,25 @@ const AddExperience: React.FC<AddExperienceProps> = ({
       historyExperiences: historyExperiences,
       populationGradeIds: numericPopulationGradeIds,
       populationGrades: stringPopulationGrades.length ? stringPopulationGrades : undefined,
-      thematicLineIds: formData.thematicLineIds?.length ? formData.thematicLineIds : tematicaForm.thematicLineIds || [],
+      // IMPORTANT: ThematicLineIds comes from IdentificationForm's "Enfoque temático" field (thematicFocus)
+      // This is the ID of the database LineThematics record (IDs 1-9)
+      thematicLineIds: (() => {
+        // Try to get the ID from identificacionForm.thematicFocus (the "Enfoque temático" dropdown)
+        const focusId = identificacionForm?.thematicFocus;
+        if (focusId) {
+          const numId = Number(focusId);
+          if (!Number.isNaN(numId) && numId > 0) {
+            return [numId];
+          }
+        }
+        // Fallback: check if we have thematicLineIds in formData or tematicaForm
+        if (formData.thematicLineIds?.length) return formData.thematicLineIds;
+        if (Array.isArray(tematicaForm.thematicLineIds) && tematicaForm.thematicLineIds.length > 0) {
+          return tematicaForm.thematicLineIds;
+        }
+        // Backend requires this field, so return empty array if nothing found
+        return [];
+      })(),
       grades: (grades && grades.length > 0)
         ? grades
         : Array.isArray(tematicaForm?.grades)

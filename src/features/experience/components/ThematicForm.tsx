@@ -15,58 +15,24 @@ interface ThematicFormProps {
 
 
 const ThematicForm: React.FC<ThematicFormProps> = ({ value, onChange }) => {
-  const [lineasTematicas, setLineasTematicas] = useState<LineThematic[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fallback list to display when API doesn't provide the expected items
-  const FALLBACK_LINES: string[] = [
-    'CIENCIAS ECONOMICAS Y POLITICAS',
-    'TECNOLOGIA E INFORMATICA',
-    'CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL',
-    'CIENCIAS SOCIALES, HISTORIA, GEOGRAFÍA, CONSTITUCIÓN POLÍTICA Y DEMOCRACIA',
-    'CONVIVENCIA Y COMPORTAMIENTO',
-    'EDUCACIÓN ARTÍSTICA Y CULTURAL',
-    'EDUCACIÓN ÉTICA Y EN VALORES HUMANOS',
-    'EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES',
-    'EDUCACIÓN RELIGIOSA',
-    'EMPRENDIMIENTO',
-    'HUMANIDADES Y LENGUA CASTELLANA',
-    'IDIOMA EXTRANJERO',
-    'MATEMÁTICAS',
-    'FILOSOFÍA',
-    'QUIMICA'
+  // Static list - these are NOT in the database, just UI options that save as text in thematicLocation
+  const lineasTematicas: LineThematic[] = [
+    { id: 1, name: 'CIENCIAS ECONOMICAS Y POLITICAS' },
+    { id: 2, name: 'TECNOLOGIA E INFORMATICA' },
+    { id: 3, name: 'CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL' },
+    { id: 4, name: 'CIENCIAS SOCIALES, HISTORIA, GEOGRAFÍA, CONSTITUCIÓN POLÍTICA Y DEMOCRACIA' },
+    { id: 5, name: 'CONVIVENCIA Y COMPORTAMIENTO' },
+    { id: 6, name: 'EDUCACIÓN ARTÍSTICA Y CULTURAL' },
+    { id: 7, name: 'EDUCACIÓN ÉTICA Y EN VALORES HUMANOS' },
+    { id: 8, name: 'EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES' },
+    { id: 9, name: 'EDUCACIÓN RELIGIOSA' },
+    { id: 10, name: 'EMPRENDIMIENTO' },
+    { id: 11, name: 'HUMANIDADES Y LENGUA CASTELLANA' },
+    { id: 12, name: 'IDIOMA EXTRANJERO' },
+    { id: 13, name: 'MATEMÁTICAS' },
+    { id: 14, name: 'FILOSOFÍA' },
+    { id: 15, name: 'QUIMICA' }
   ];
-
-  useEffect(() => {
-    const fetchLineasTematicas = async () => {
-      try {
-        // Use central getToken() so token format is consistent across the app
-        const token = getToken() ?? "";
-
-        const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-        const endpoint = API_BASE ? `${API_BASE}/api/LineThematic/getAll` : "/api/LineThematic/getAll";
-
-        const response = await axios.get(endpoint, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-
-        // Ignore API results and always use the user's provided list
-        const fallback = FALLBACK_LINES.map((name, idx) => ({ id: idx + 1, name }));
-        setLineasTematicas(fallback);
-      } catch (err) {
-        // axios error handling
-        const status = (err as any)?.response?.status;
-        if (status === 401) {
-          setError("No autorizado. Por favor inicia sesión.");
-        } else {
-          setError("Error al cargar las líneas temáticas.");
-        }
-        console.error("Error fetching LineThematic", err);
-      }
-    };
-
-    fetchLineasTematicas();
-  }, []);
 
   // helpers removed: inputs with character counters have been removed per request
 
@@ -75,26 +41,13 @@ const ThematicForm: React.FC<ThematicFormProps> = ({ value, onChange }) => {
       <h2 className="text-3xl font-bold mb-2">Tematica y Desarrollo</h2>
       <p className="text-lg text-gray-600 mb-4">Señale el área principal en la que desarrolla la Experiencia Significativa <span className="text-red-500">*</span></p>
 
-      {error && (
-        <div className="mb-4 text-sm text-red-600">{error}</div>
-      )}
-
       {/* Checkbox grid (no box styling) */}
       <div className="mb-6">
         <div className="grid grid-cols-3 gap-3">
-          {lineasTematicas.length === 0 && (
-            <div className="col-span-3 text-sm text-gray-500">No hay líneas temáticas cargadas.</div>
-          )}
-
           {lineasTematicas.map((linea) => {
-            // Determine checked state by supporting multiple shapes the parent may provide
+            // Check if this option is selected (compare by name only, since IDs are just for UI)
             const v: any = value || {};
-            const checked = (
-              // thematicLocation might be the name (string) or numeric id in some cases
-              v.thematicLocation === linea.name || v.thematicLocation === linea.id ||
-              // older fields
-              v.thematicLineId === linea.id || (Array.isArray(v.thematicLineIds) && v.thematicLineIds[0] === linea.id)
-            );
+            const checked = v.thematicLocation === linea.name;
 
             return (
               <label key={linea.id} className="flex items-start gap-2 text-sm">
@@ -104,9 +57,10 @@ const ThematicForm: React.FC<ThematicFormProps> = ({ value, onChange }) => {
                   className="mt-1 h-4 w-4 border-gray-300 rounded-full"
                   checked={checked}
                   onChange={() => {
-                    // set `thematicLocation` as the thematic name (string) which the backend expects,
-                    // and keep `thematicLineIds` as numeric compatibility fallback
-                    onChange({ ...v, thematicLocation: linea.name, thematicLineIds: [linea.id] });
+                    // IMPORTANT: Only save the NAME as string in thematicLocation
+                    // DO NOT send thematicLineIds - these IDs don't exist in the database
+                    console.log(`📍 Selected thematic line: "${linea.name}"`);
+                    onChange({ ...v, thematicLocation: linea.name });
                   }}
                 />
                 <span className="leading-tight break-words whitespace-normal">{linea.name}</span>

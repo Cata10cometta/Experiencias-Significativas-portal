@@ -64,11 +64,17 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
 
   useEffect(() => {
     const fetchEnums = async () => {
-      const dane = await getEnum("CodeDane");
-      setCodigoDaneOptions(dane);
+      try {
+        const dane = await getEnum("CodeDane");
+        setCodigoDaneOptions(Array.isArray(dane) ? dane : []);
 
-      const emails = await getEnum("EmailInstitucional");
-      setEmailInstitucionalOptions(emails);
+        const emails = await getEnum("EmailInstitucional");
+        setEmailInstitucionalOptions(Array.isArray(emails) ? emails : []);
+      } catch (error) {
+        console.error("Error fetching enums:", error);
+        setCodigoDaneOptions([]);
+        setEmailInstitucionalOptions([]);
+      }
     };
     fetchEnums();
   }, []);
@@ -118,7 +124,7 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
               autoComplete="off"
             />
             {getFieldError("codeDane", value.codeDane) && <p className="text-red-600 text-sm mt-1">{getFieldError("codeDane", value.codeDane)}</p>}
-            {value._codigoDaneFocus && (
+            {value._codigoDaneFocus && Array.isArray(codigoDaneOptions) && (
               <ul className="absolute left-0 z-10 bg-white border border-gray-300 rounded-md w-full mt-1 max-h-40 overflow-y-auto shadow-lg">
                 {(value.codeDane
                   ? codigoDaneOptions.filter((opt) =>
@@ -131,13 +137,15 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
                   <li
                     key={opt.id}
                     className="px-3 py-2 cursor-pointer hover:bg-indigo-100"
-                    onMouseDown={() =>
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       onChange({
                         ...value,
                         codeDane: String(opt.id),
                         _codigoDaneFocus: false,
-                      })
-                    }
+                      });
+                    }}
                   >
                     {opt.id}
                   </li>
@@ -300,7 +308,7 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
             autoComplete="off"
           />
               {errors?.emailInstitucional && <p className="text-red-600 text-sm mt-1">{errors.emailInstitucional}</p>}
-          {value._emailInstitucionalFocus && (
+          {value._emailInstitucionalFocus && Array.isArray(emailInstitucionalOptions) && (
             <ul className="absolute left-0 z-10 bg-white border border-gray-300 rounded-md w-full mt-1 max-h-40 overflow-y-auto shadow-lg">
               {(value.emailInstitucional
                 ? emailInstitucionalOptions.filter((opt) =>
@@ -313,13 +321,15 @@ const InstitutionalIdentification: React.FC<Props> = ({ value, onChange, errors 
                 <li
                   key={opt.id}
                   className="px-3 py-2 cursor-pointer hover:bg-indigo-100"
-                  onMouseDown={() =>
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     onChange({
                       ...value,
                       emailInstitucional: opt.displayText,
                       _emailInstitucionalFocus: false,
-                    })
-                  }
+                    });
+                  }}
                 >
                   {opt.displayText}
                 </li>

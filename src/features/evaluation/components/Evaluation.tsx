@@ -825,7 +825,18 @@ function Evaluation({ experienceId, experiences = [], onClose, onExperienceUpdat
             <Modal open={showModal} onClose={handleCloseModal}>
                 <Box
                     sx={{
-                        
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        bgcolor: 'background.paper',
+                        borderRadius: 3,
+                        boxShadow: 24,
+                        p: 4,
+                        minWidth: 320,
+                        maxWidth: 400,
+                        outline: 'none',
+                        textAlign: 'center',
                     }}
                 >
                     {/* Botón X para cerrar */}
